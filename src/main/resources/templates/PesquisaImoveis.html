@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<meta charset="UTF-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta name="viewport" content="width-device-width"/>
+	
+	<title>Pesquisa de imóveis</title>
+	
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap-datepicker.standalone.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/style.css" />
+	<link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
+
+</head>
+<body>
+	<nav class="navbar navbar-inverse navbar-static-top navbar">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">
+					<img class="logo" alt="Mold Systems" src="/images/logo-mold.jpg"/>
+				</a>
+			</div>
+		</div>
+	</nav>
+	
+	<div class="alert alert-success alert-dismissible fade show"
+		role="alert" th:if="${!#strings.isEmpty(mensagem)}" id="myAlert">
+		<strong th:text="${mensagem}"></strong>
+		<button type="button" class="btn-close" data-dismiss="alert"></button>
+	</div>
+	
+	<div class="card">
+		<div class="card-header">
+		    <h5 class="card-title aw-titulo">Pesquisa de imóveis</h5>
+		    <a class="btn btn-link aw-link" href="/imoveis/novo">+ Novo imóvel</a>
+		  </div>
+		  
+		  <div class="card-body">
+
+			  <form method="get" class="form-horizontal" th:action="@{/imoveis}" th:object="${filtro}">
+				  <h6>Filtrar por:</h6>
+				  <div class="form-group row">
+					 <div class="col-sm-1">
+						  <input class="form form-control" placeholder="ID"
+						      autofocus="autofocus" th:field="*{codigo}" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></input>
+					  </div>
+					  <div class="col-sm-2">
+						  <input class="form form-control" placeholder="Endereço"
+							  autofocus="autofocus" th:field="*{endereco}"></input>
+					  </div>
+						    
+					  <div class="col-sm-1">
+						  <input class="form form-control" placeholder="Bairro" 
+						      autofocus="autofocus" th:field="*{bairro}"></input>
+					  </div>
+						    
+					  <div class="col-sm-1">
+						   <input class="form form-control" placeholder="N°" 
+						      autofocus="autofocus" th:field="*{numero}" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></input>
+					  </div>
+			
+				      <div class="col-sm-1">
+						   <select class="form form-control" th:field="*{categoria}">
+							   <option value="">Categoria</option>
+						       <option th:each="categoria : ${todasCategoriasImoveis}"
+									th:value="${categoria.descricao}"
+									autofocus="autofocus" th:text="${categoria.descricao}"></option>
+						   </select>
+					   </div>
+						    
+					   <div class="col-sm-1">
+						   <select class="form form-control" onchange="habilitarCampos()" th:field="*{tipo}">
+							   <option value="">Tipo</option>
+						       <option th:each="tipo : ${todosTiposImoveis}" placeholder="Tipo"
+								autofocus="autofocus" th:value="${tipo}" th:text="${tipo.descricao}"></option>
+						   </select>
+					   </div>
+					  
+					   <div class="col-sm-1">
+							<input class="form form-control" placeholder="Valor min Venda" 
+						      autofocus="autofocus" th:field="*{ValorMinimoVenda}"
+						      oninput="this.value = this.value.replace(/[^0-9]/g, '')"></input>
+						</div>
+						    
+						<div class="col-sm-1">
+						    <input class="form form-control" placeholder="Valor max Venda" 
+						      autofocus="autofocus" th:field="*{valorMaximoVenda}"
+						      oninput="this.value = this.value.replace(/[^0-9]/g, '')"></input>
+						</div>
+					   <div class="col-sm-1">
+							<input class="form form-control" placeholder="Valor min Locação" 
+						      autofocus="autofocus" th:field="*{ValorMinimoLocacao}"
+						      oninput="this.value = this.value.replace(/[^0-9]/g, '')"></input>
+						</div>
+						    
+						<div class="col-sm-1">
+						    <input class="form form-control" placeholder="Valor max Locação" 
+						      autofocus="autofocus" th:field="*{valorMaximoLocacao}"
+						      oninput="this.value = this.value.replace(/[^0-9]/g, '')"></input>
+						</div>
+						<div class="col">
+							<button type="submit" class="btn btn-default">
+								<i class="fas fa-search"></i>
+							</button>
+						</div>
+				 </div>
+			</form>
+		</div>
+			  
+			  <table class="table table-bordered table-striped">
+				  <thead>
+					  <tr>
+						  <th class="text-center col-md-1">#</th>
+						  <th class="text-left col-md-1">Endereço</th>
+						  <th class="text-right col-md-1">CEP</th>
+						  <th class="text-left col-md-1">Bairro</th>
+						  <th class="text-right col-md-1">Cidade</th>
+						  <th class="text-center col-md-1">Número</th>
+						  <th class="text-center col-md-1">UF</th>
+						  <th class="text-right col-md-1">Categoria</th>
+						  <th class="text-left col-md-1">Tipo</th>
+						  <th class="text-center col-md-1">Valor Venda</th>
+						  <th class="text-center col-md-1">Valor Locação</th>
+						  <th class="col-md-1"></th>
+					  </tr>
+				  </thead>
+				  <tbody>
+					  <tr th:each="imovel : ${imoveis}">
+						  <td class="text-center col-md-1" th:text="${imovel.codigo}"></tdclass="text-left col-md-1">
+						  <td class="text-left col-md-1" th:text="${imovel.endereco}"></td>
+						  <td class="text-right col-md-1" th:text="${imovel.cep}"></td>
+						  <td class="text-left col-md-1" th:text="${imovel.bairro}"></td>
+						  <td class="text-right col-md-1" th:text="${imovel.cidade}"></td>
+						  <td class="text-center col-md-1" th:text="${imovel.numero}"></td>
+						  <td class="text-center col-md-1" th:text="${imovel.uf}"></td>
+						  <td class="text-right col-md-1" th:text="${imovel.categoria}"></td>
+						  <td class="text-left col-md-1" th:text="${imovel.tipo}"></td>
+						  <td class="text-center col-md-1" th:text="|R$ ${{imovel.valorVenda}}|"></td>
+						  <td class="text-center col-md-1" th:text="|R$ ${{imovel.valorLocacao}}|"></td>
+						  <td class="text-center">
+						  	<a class="btn btn-link btn-xs" th:href="@{/imoveis/{codigo}(codigo=${imovel.codigo})}" title="Editar">
+								 <span class="fas fa-edit"></span>
+							</a>
+							 <a class="btn btn-link btn-xs" data-toggle="modal"
+							 data-target="#confirmacaoExclusaoModal"
+							 th:attr="data-codigo=${imovel.codigo}, data-endereco=${imovel.endereco}"
+							 title="Excluir"> 
+								<span class="fas fa-trash-alt"></span>
+							</a>
+						  </td>
+					  </tr>
+					  <tr>
+						  <td colspan="12" th:if="${#lists.isEmpty(imoveis)}">Nenhum imóvel foi encontrado</td>
+					  </tr>
+				  </tbody>
+			 </table>
+		    <form action="/relatorio" method="get" target="_blank">
+		        <button class="btn btn-primary col-sm-offset-11 offset-sm-11" type="submit">Gerar lista em PDF</button>
+		    </form>
+		  </div>
+		  
+		  <div class="modal fade" id="confirmacaoExclusaoModal" tabindex="-1" data-keyboard="false" data-backdrop="static">
+			<div class="modal-dialog">
+				<form th:attr="data-url-base=@{/imoveis}" method="POST">
+					<input type="hidden" name="_method" value="DELETE" />
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Confirmação de Exclusão</h4>
+						</div>
+						<div class="modal-body">
+							<span></span>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+							<button type="submit" class="btn btn-primary btnConfirma">Confirma</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		
+	</div>
+	
+	
+	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.min.js}"></script>
+	<script th:src="@{/js/bootstrap-datepicker.min.js}"></script>
+	<script th:src="@{/js/bootstrap-datepicker.pt-BR.min.js}"></script>
+	<script th:src="@{/js/jquery.maskMoney.min.js}"></script>
+	<script th:src="@{/js/imovel.js}"></script>
+	<script th:src="@{/js/valores.js}"></script>
+</body>
+</html>

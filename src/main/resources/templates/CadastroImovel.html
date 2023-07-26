@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf,org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<meta charset="UTF-8"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta name="viewport" content="width-device-width"/>
+	
+	<title>Cadastro de imóveis</title>
+	
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap-datepicker.standalone.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/style.css" />
+
+</head>
+<body>
+	<nav class="navbar navbar-inverse navbar-static-top navbar">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">
+					<img class="logo" alt="Mold Systems" src="/images/logo-mold.jpg"/>
+				</a>
+			</div>
+		</div>
+	</nav>
+	
+	<form class="form-horizontal" method="POST" th:action="@{/imoveis}" th:object="${imovel}" id="form-imovel">
+		<div class="alert alert-success alert-dismissible fade show"
+			role="alert" th:if="${!#strings.isEmpty(mensagem)}">
+			<strong th:text="${mensagem}"></strong>
+			<button type="button" class="btn-close" data-dismiss="alert"></button>
+		</div>
+		<div class="alert alert-danger alert-dismissible fade show" 
+			role="alert" th:if="${#fields.hasAnyErrors()}">
+			<div th:each="detailedError : ${#fields.detailedErrors()}">
+				<strong th:text="${detailedError.message}"></strong>
+				<button type="button" class="btn-close" data-dismiss="alert"></button>
+			</div>
+		</div>
+		
+		<div class="card">
+		  <div class="card-header">
+		    <h5 class="card-title aw-titulo">Novo Imóvel</h5>
+		    <a class="btn btn-link aw-link" href="/imoveis">Voltar para lista de imóveis</a>
+		  </div>
+		  
+		  <div class="card-body">
+			  
+		   <input type="hidden" th:field="*{codigo}"/>
+			  
+		    <div class="form-group row">
+				<label for="endereco" class="col-sm-2 control-label">Endereço</label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control" id="endereco" th:field="*{endereco}" onblur="verificarEnderecoExistente()"/>
+				</div>
+			</div>
+
+		    <div class="form-group row">
+				<label for="cep" class="col-sm-2 control-label">CEP</label>
+				<div class="col-sm-2">
+					<input type="text" class="form-control" id="cep" th:field="*{cep}" onblur="verificarEnderecoExistente()" 
+					oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+				</div>
+			</div>
+			
+		    <div class="form-group row">
+				<label for="bairro" class="col-sm-2 control-label">Bairro</label>
+				<div class="col-sm-2">
+					<input type="text" class="form-control" id="bairro" th:field="*{bairro}" onblur="verificarEnderecoExistente()"/>
+				</div>
+			</div>
+		    <div class="form-group row">
+				<label for="uf" class="col-sm-2 control-label">UF</label>
+				<div class="col-sm-2">
+					<select class="form-control" th:field="*{uf}" onblur="verificarEnderecoExistente()">
+						<option value="">UF</option>
+						<option th:each="uf : ${todosEstadosImoveis}"
+								th:value="${uf}" th:text="${uf.descricao}"></option>
+					</select>
+				</div>
+			</div>
+			
+		    <div class="form-group row">
+				<label for="cidade" class="col-sm-2 control-label">Cidade</label>
+				<div class="col-sm-2">
+					<input type="text" class="form-control" id="cidade" th:field="*{cidade}" onblur="verificarEnderecoExistente()"/>
+				</div>
+			</div>
+			
+			
+		    <div class="form-group row">
+				<label for="categoria" class="col-sm-2 control-label">Categoria</label>
+				<div class="col-sm-2">
+					<select class="form-control" th:field="*{categoria}">
+						<option value="">Categoria</option>
+						<option th:each="categoria : ${todasCategoriasImoveis}"
+								th:value="${categoria}" th:text="${categoria.descricao}"></option>
+					</select>
+				</div>
+			</div>
+		    <div class="form-group row">
+				<label for="tipo" class="col-sm-2 control-label">Tipo do Imóvel</label>
+				<div class="col-sm-2">
+					<select class="form-control" th:field="*{tipo}" onchange="habilitarCampos()">
+						<option value="">Tipo</option>
+						<option th:each="tipo : ${todosTiposImoveis}"
+								th:value="${tipo}" th:text="${tipo.descricao}"></option>
+					</select>
+				</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control js-currency" id="valorVenda" th:field="*{valorVenda}" placeholder="Valor de Venda"
+					oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+				</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control js-currency" id="valorLocacao" th:field="*{valorLocacao}" placeholder="Valor de Locação"
+					oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+				</div>
+			</div>
+			    <div class="form-group row">
+					<label for="numero" class="col-sm-2 control-label">Número</label>
+					<div class="col-sm-2">
+						<input type="text" class="form-control" id="numero" th:field="*{numero}" onblur="verificarEnderecoExistente()"
+						oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+					</div>
+				</div>
+			<div id="mensagem-duplicacao" class="alert alert-danger" style="display: none;"></div>
+			  <div class="form-group row">
+				  <div class="col-sm-offset-2 col-sm-10 offset-sm-2">
+				    <button id="btn-salvar" type="submit" class="btn btn-primary">Salvar</button> 
+				  </div>
+			  </div>
+			
+		  </div>
+		</div>
+	</form>
+	
+
+	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.min.js}"></script>
+	<script th:src="@{/js/bootstrap-datepicker.min.js}"></script>
+	<script th:src="@{/js/bootstrap-datepicker.pt-BR.min.js}"></script>
+	<script th:src="@{/js/jquery.maskMoney.min.js}"></script>
+	<script th:src="@{/js/cobranca.js}"></script>
+	<script th:src="@{/js/valores.js}"></script>
+	<script th:src="@{/js/duplicacao-endereco.js}"></script>
+</body>
+
+</html>
